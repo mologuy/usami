@@ -18,6 +18,7 @@ client.on('message', msg => {
                 break;
             case "help":
                 helpComm(msg);
+                break;
             default:
                 msg.channel.send(`Command not found: ${commMatch[1]}`);
                 break;
