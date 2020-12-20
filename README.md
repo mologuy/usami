@@ -1,0 +1,2 @@
+# usami
+ Personal Dicord bot
