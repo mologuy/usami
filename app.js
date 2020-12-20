@@ -5,7 +5,7 @@ const client = new Discord.Client();
 const BOT_TOKEN = BOT_INFO.TOKEN;
 
 client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+    console.log(`Logged in as ${client.user.tag}`);
 });
 
 client.on('message', msg => {
@@ -14,17 +14,23 @@ client.on('message', msg => {
         console.log(commMatch[1]);
         switch (commMatch[1]) {
             case "ping":
-                pingCom(msg);
+                pingComm(msg);
                 break;
+            case "help":
+                helpComm(msg);
             default:
-                msg.channel.send(`Command: ${commMatch[1]}\nArgs: ${commMatch[2]}`);
+                msg.channel.send(`Command not found: ${commMatch[1]}`);
                 break;
         }
     }
 });
 
-function pingCom(msg) {
-    msg.channel.send("pong!");
+function pingComm(msg) {
+    msg.channel.send("pong");
+}
+
+function helpComm(msg) {
+    msg.channel.send("help?");
 }
 
 client.login(BOT_TOKEN);
