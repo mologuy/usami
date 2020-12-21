@@ -23,7 +23,7 @@ client.on('message', msg => {
                 rulesComm(msg);
                 break;
             default:
-                msg.channel.send(`Command not found: ${commMatch[1]}`);
+                console.log(`Command not found: ${commMatch[1]}`);
                 break;
         }
     }
