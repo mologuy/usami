@@ -10,7 +10,7 @@ client.on('ready', () => {
 
 client.on('message', msg => {
     var commMatch = msg.content.match(/^\*(\b\S+\b)(.*)/);
-    if (commMatch) {
+    if (commMatch && !msg.author.bot) {
         console.log(commMatch[1]);
         switch (commMatch[1]) {
             case "ping":
@@ -18,6 +18,9 @@ client.on('message', msg => {
                 break;
             case "help":
                 helpComm(msg);
+                break;
+            case "rules":
+                rulesComm(msg);
                 break;
             default:
                 msg.channel.send(`Command not found: ${commMatch[1]}`);
@@ -32,6 +35,10 @@ function pingComm(msg) {
 
 function helpComm(msg) {
     msg.channel.send("help?");
+}
+
+function rulesComm(msg) {
+    msg.channel.send("**Rules:**\n1. Don't be a dick\n2. DON'T BE A DICK\n3. Follow the rules\n4. Trans rights");
 }
 
 client.login(BOT_TOKEN);
