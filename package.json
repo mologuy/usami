@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "description": "Personal Discord bot",
   "main": "app.js",
-  "scripts": {},
+  "scripts": {
+    "dev": "nodemon app.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mologuy/usami.git"

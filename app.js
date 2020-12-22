@@ -1,4 +1,5 @@
 const Discord = require("discord.js");
+const util = require('minecraft-server-util');
 const BOT_INFO = require("./CONFIG.json");
 
 const client = new Discord.Client();
