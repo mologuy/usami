@@ -81,6 +81,11 @@ function minecraftComm(msg, args) {
             inline: true
         },
         {
+            name:"Gamemode",
+            value: "survival",
+            inline: true
+        },
+        {
             name:"Related Commands",
             value: "`whitelist`, `rcon`"
         }
