@@ -1,6 +1,6 @@
 {
   "name": "usami",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Personal Discord bot",
   "main": "app.js",
   "scripts": {
