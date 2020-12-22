@@ -9,7 +9,6 @@ const MC_ROLE = BOT_INFO.MC_MOD_ROLE_NAME;
 const MC_URL = BOT_INFO.MC_SERVER_URL;
 const RCON_PASS = BOT_INFO.RCON_PASSWORD;
 const RCON_CHAN = BOT_INFO.RCON_OUTPUT_CHANNEL;
-const rconClient = new util.RCON(MC_URL, {port: 25575, enableSRV: true, timeout: 5000, password: RCON_PASS});
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
@@ -99,6 +98,9 @@ function minecraftStatusComm(msg) {
         msg.channel.send(`ERROR: ${error}`);
     });
 }
+
+const rconClient = new util.RCON(MC_URL, {port: 25575, enableSRV: true, timeout: 5000, password: RCON_PASS});
+
 rconClient.on('output', (message) => {
     if (message != "") {
         console.log(message);
