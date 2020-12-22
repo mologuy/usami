@@ -30,6 +30,9 @@ client.on('message', msg => {
             case "minecraft":
                 minecraftComm(msg, commMatch[2]);
                 break;
+            case "rcon":
+                rconComm(msg, commMatch[2]);
+                break;
             default:
                 msg.channel.send(`Command not found: \`${commMatch[1]}\``);
                 break;
@@ -84,6 +87,16 @@ function minecraftComm(msg, args) {
     )
 
     msg.channel.send(msgEmbed);
+}
+
+function rconComm(msg, args) {
+    var argsMatch = args.match(/^\s+(\b\S+\b)\s*(.*)/)
+    if (argsMatch) {
+        //TODO
+    }
+    else {
+        msg.channel.send("Command usage: `rcon REMOTE_COMMAND [REMOTE_ARGS...]`");
+    }
 }
 
 client.login(BOT_TOKEN);
