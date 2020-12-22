@@ -3,13 +3,14 @@ const BOT_INFO = require("./CONFIG.json");
 
 const client = new Discord.Client();
 const BOT_TOKEN = BOT_INFO.TOKEN;
-const BOT_PREFIX = BOT_INFO.PREFIX.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+const BOT_PREFIX = BOT_INFO.PREFIX;
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
+    client.user.setActivity(`Help: ${BOT_PREFIX}help`);
 });
 
-const commRegex = RegExp(`^${BOT_PREFIX}(\\b\\S+\\b)(.*)`);
+const commRegex = RegExp(`^${BOT_PREFIX.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}(\\b\\S+\\b)(.*)`);
 
 client.on('message', msg => {
     var commMatch = msg.content.match(commRegex);
