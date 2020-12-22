@@ -1,15 +1,18 @@
 const Discord = require("discord.js");
-const BOT_INFO = require("./BOT_INFO.json");
+const BOT_INFO = require("./CONFIG.json");
 
 const client = new Discord.Client();
 const BOT_TOKEN = BOT_INFO.TOKEN;
+const BOT_PREFIX = BOT_INFO.PREFIX.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
 });
 
+const commRegex = RegExp(`^${BOT_PREFIX}(\\b\\S+\\b)(.*)`);
+
 client.on('message', msg => {
-    var commMatch = msg.content.match(/^\*(\b\S+\b)(.*)/);
+    var commMatch = msg.content.match(commRegex);
     if (commMatch && !msg.author.bot) {
         console.log(commMatch[1]);
         switch (commMatch[1]) {
@@ -17,7 +20,7 @@ client.on('message', msg => {
                 pingComm(msg);
                 break;
             case "help":
-                helpComm(msg);
+                helpComm(msg, commMatch[2]);
                 break;
             case "rules":
                 rulesComm(msg);
@@ -33,7 +36,7 @@ function pingComm(msg) {
     msg.channel.send("pong");
 }
 
-function helpComm(msg) {
+function helpComm(msg, args) {
     msg.channel.send("help?");
 }
 
