@@ -1,0 +1,24 @@
+{
+  "name": "usami",
+  "version": "0.0.1",
+  "description": "Personal Discord bot",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mologuy/usami.git"
+  },
+  "author": "mologuy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mologuy/usami/issues"
+  },
+  "homepage": "https://github.com/mologuy/usami#readme",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "minecraft-server-util": "^3.4.2",
+    "nodemon": "^2.0.6"
+  }
+}
