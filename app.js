@@ -15,7 +15,7 @@ const commRegex = RegExp(`^${BOT_PREFIX.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'
 client.on('message', msg => {
     var commMatch = msg.content.match(commRegex);
     if (commMatch && !msg.author.bot) {
-        console.log(commMatch[1]);
+        console.log(`Command recieved: ${commMatch[1]}`);
         switch (commMatch[1]) {
             case "ping":
                 pingComm(msg);
@@ -25,6 +25,9 @@ client.on('message', msg => {
                 break;
             case "rules":
                 rulesComm(msg);
+                break;
+            case "minecraft":
+                minecraftComm(msg, commMatch[2]);
                 break;
             default:
                 msg.channel.send(`Command not found: \`${commMatch[1]}\``);
@@ -38,11 +41,48 @@ function pingComm(msg) {
 }
 
 function helpComm(msg, args) {
-    msg.channel.send("help?");
+    msg.channel.send("ask molo");
 }
 
 function rulesComm(msg) {
     msg.channel.send("**Rules:**\n1. Don't be a dick\n2. DON'T BE A DICK\n3. Follow the rules\n4. Trans rights");
+}
+
+function minecraftComm(msg, args) {
+    var msgEmbed = new Discord.MessageEmbed()
+    .setColor('#228B22')
+    .setTitle('Minecraft server info')
+    .setThumbnail("https://static.mologuy.com/images/mc-server/minecraft_icon.png")
+    .addFields(
+        {
+            name:"URL",
+            value: "mc.mologuy.com"
+        },
+        {
+            name: "Name",
+            value: "Molo's Server OwO",
+        },
+        {
+            name: '\u200B',
+            value: '\u200B'
+        },
+        {
+            name:"Version",
+            value: "1.16.4",
+            inline: true
+        },
+        {
+            name:"Players",
+            value: "0/10",
+            inline: true
+        },
+        {
+            name:"Related Commands",
+            value: "`whitelist`, `rcon`"
+        }
+    )
+
+    msg.channel.send(msgEmbed);
 }
 
 client.login(BOT_TOKEN);
