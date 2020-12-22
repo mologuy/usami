@@ -5,6 +5,11 @@ const BOT_INFO = require("./CONFIG.json");
 const client = new Discord.Client();
 const BOT_TOKEN = BOT_INFO.TOKEN;
 const BOT_PREFIX = BOT_INFO.PREFIX;
+const MC_ROLE = BOT_INFO.MC_MOD_ROLE_NAME;
+const MC_URL = BOT_INFO.MC_SERVER_URL;
+const RCON_PASS = BOT_INFO.RCON_PASSWORD;
+const RCON_CHAN = BOT_INFO.RCON_OUTPUT_CHANNEL;
+const rconClient = new util.RCON(MC_URL, {port: 25575, enableSRV: true, timeout: 5000, password: RCON_PASS});
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
@@ -28,7 +33,7 @@ client.on('message', msg => {
                 rulesComm(msg);
                 break;
             case "minecraft":
-                minecraftComm(msg, commMatch[2]);
+                minecraftStatusComm(msg);
                 break;
             case "rcon":
                 rconComm(msg, commMatch[2]);
@@ -52,55 +57,75 @@ function rulesComm(msg) {
     msg.channel.send("**Rules:**\n1. Don't be a dick\n2. DON'T BE A DICK\n3. Follow the rules\n4. Trans rights");
 }
 
-function minecraftComm(msg, args) {
-    var msgEmbed = new Discord.MessageEmbed()
-    .setColor('#228B22')
-    .setTitle('Minecraft server info')
-    .setThumbnail("https://static.mologuy.com/images/mc-server/minecraft_icon.png")
-    .addFields(
-        {
-            name:"URL",
-            value: "mc.mologuy.com"
-        },
-        {
-            name: "Name",
-            value: "Molo's Server OwO",
-        },
-        {
-            name: '\u200B',
-            value: '\u200B'
-        },
-        {
-            name:"Version",
-            value: "1.16.4",
-            inline: true
-        },
-        {
-            name:"Players",
-            value: "0/10",
-            inline: true
-        },
-        {
-            name:"Gamemode",
-            value: "survival",
-            inline: true
-        },
-        {
-            name:"Related Commands",
-            value: "`whitelist`, `rcon`"
-        }
-    )
-
-    msg.channel.send(msgEmbed);
+function minecraftStatusComm(msg) {
+    util.status(MC_URL)
+    .then((response) => {
+        var msgEmbed = new Discord.MessageEmbed()
+        .setColor('#228B22')
+        .setTitle('Minecraft server info')
+        .setThumbnail("https://static.mologuy.com/images/mc-server/minecraft_icon.png")
+        .addFields(
+            {
+                name:"URL",
+                value: response.host
+            },
+            {
+                name: "Name",
+                value: response.description,
+            },
+            {
+                name: '\u200B',
+                value: '\u200B'
+            },
+            {
+                name:"Version",
+                value: response.version.match(/\d+\.\d+\.\d+/),
+                inline: true
+            },
+            {
+                name:"Players",
+                value: `${response.onlinePlayers}/${response.maxPlayers}`,
+                inline: true
+            },
+            {
+                name:"Related Commands",
+                value: "`whitelist`, `rcon`"
+            }
+        )
+    
+        msg.channel.send(msgEmbed);
+    })
+    .catch((error) => {
+        msg.channel.send(`ERROR: ${error}`);
+    });
 }
+rconClient.on('output', (message) => {
+    if (message != "") {
+        console.log(message);
+        client.channels.cache.get(RCON_CHAN).send(message);
+    }
+    rconClient.close();
+});
 
 function rconComm(msg, args) {
-    var argsMatch = args.match(/^\s+(\b\S+\b)\s*(.*)/)
-    if (argsMatch) {
-        //TODO
+    if (msg.member.roles.cache.some(role => role.name === MC_ROLE)){
+        var argsMatch = args.match(/^\s+(\b\S+\b)\s*(.*)/)
+        if (argsMatch) {
+            rconClient.connect()
+            .then(()=>{
+                var mcCommand = `${argsMatch[1]} ${argsMatch[2]}`;
+                rconClient.run(mcCommand);
+            })
+            .catch((error)=>{
+                RCON_CHAN.send(`CONNECTION ERROR: ${error}`);
+            });
+        }
+        else {
+            msg.channel.send("Command usage: `rcon REMOTE_COMMAND [REMOTE_ARGS...]`");
+        }
     }
     else {
-        msg.channel.send("Command usage: `rcon REMOTE_COMMAND [REMOTE_ARGS...]`");
+        msg.reply(`You need the role "${MC_ROLE}" to use this command`);
     }
 }
 
