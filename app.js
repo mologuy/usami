@@ -7,7 +7,7 @@ const BOT_PREFIX = BOT_INFO.PREFIX;
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
-    client.user.setActivity(`Help: ${BOT_PREFIX}help`);
+    client.user.setActivity(`Commands: ${BOT_PREFIX}help`);
 });
 
 const commRegex = RegExp(`^${BOT_PREFIX.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}(\\b\\S+\\b)(.*)`);
@@ -27,7 +27,7 @@ client.on('message', msg => {
                 rulesComm(msg);
                 break;
             default:
-                console.log(`Command not found: ${commMatch[1]}`);
+                msg.channel.send(`Command not found: \`${commMatch[1]}\``);
                 break;
         }
     }
