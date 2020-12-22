@@ -4,7 +4,8 @@
   "description": "Personal Discord bot",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "deploy": "npm install && pm2 start app.js --name \"usami\""
   },
   "repository": {
     "type": "git",
