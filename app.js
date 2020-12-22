@@ -8,7 +8,6 @@ const BOT_PREFIX = BOT_INFO.PREFIX;
 const MC_ROLE = BOT_INFO.MC_MOD_ROLE_NAME;
 const MC_URL = BOT_INFO.MC_SERVER_URL;
 const RCON_PASS = BOT_INFO.RCON_PASSWORD;
-const RCON_CHAN = BOT_INFO.RCON_OUTPUT_CHANNEL;
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
@@ -32,10 +31,13 @@ client.on('message', msg => {
                 rulesComm(msg);
                 break;
             case "minecraft":
-                minecraftStatusComm(msg);
+                minecraftComm(msg, commMatch[2]);
+                break;
+            case "whitelist":
+                minecraftJoinComm(msg, commMatch[2]);
                 break;
             case "rcon":
-                rconComm(msg, commMatch[2]);
+                minecraftRconComm(msg, commMatch[2]);
                 break;
             default:
                 msg.channel.send(`Command not found: \`${commMatch[1]}\``);
@@ -54,6 +56,21 @@ function helpComm(msg, args) {
 
 function rulesComm(msg) {
     msg.channel.send("**Rules:**\n1. Don't be a dick\n2. DON'T BE A DICK\n3. Follow the rules\n4. Trans rights");
+}
+
+function minecraftComm(msg, args) {
+    argsMatch = args.match(/^\s*(\b\S+\b)(.*)/);
+    if (argsMatch) {
+        if (argsMatch[1] === "join") {
+            minecraftJoinComm(msg, argsMatch[2]);
+        }
+        else if (argsMatch[1] === "rcon") {
+            minecraftRconComm(msg,argsMatch[2]);
+        }
+        else {
+            minecraftStatusComm(msg);
+        }
+    }
 }
 
 function minecraftStatusComm(msg) {
@@ -87,8 +104,8 @@ function minecraftStatusComm(msg) {
                 inline: true
             },
             {
-                name:"Related Commands",
-                value: "`whitelist`, `rcon`"
+                name:"Subcommands",
+                value: "`join`, `rcon`"
             }
         )
     
@@ -99,31 +116,52 @@ function minecraftStatusComm(msg) {
     });
 }
 
-const rconClient = new util.RCON(MC_URL, {port: 25575, enableSRV: true, timeout: 5000, password: RCON_PASS});
-
-rconClient.on('output', (message) => {
-    if (message != "") {
-        console.log(message);
-        client.channels.cache.get(RCON_CHAN).send(message);
+function minecraftJoinComm(msg, args){
+    argsMatch = args.match(/^\s*(\b\S+\b)(.*)/);
+    if (argsMatch) {
+        const rconClient = new util.RCON(MC_URL, {port: 25575, enableSRV: true, timeout: 5000, password: RCON_PASS});
+        rconClient.on('output', (message) => {
+            if (message != "") {
+                console.log(message);
+                msg.channel.send(message);
+            }
+            rconClient.close();
+        });
+        rconClient.connect()
+        .then(()=>{
+            var mcCommand = `whitelist add ${argsMatch[1]}`;
+            rconClient.run(mcCommand);
+        })
+        .catch((error)=>{
+            msg.channel.send(`ERROR: ${error}`);
+        });
     }
-    rconClient.close();
-});
+    else {
+        msg.channel.send("Command usage: `minecraft join <minecraft username>`")
+    }
+}
 
-function rconComm(msg, args) {
+function minecraftRconComm(msg, args) {
     if (msg.member.roles.cache.some(role => role.name === MC_ROLE)){
-        var argsMatch = args.match(/^\s+(\b\S+\b)\s*(.*)/)
+        var argsMatch = args.match(/^\s*(\b\S+\b)\s*(.*)/)
         if (argsMatch) {
+            const rconClient = new util.RCON(MC_URL, {port: 25575, enableSRV: true, timeout: 5000, password: RCON_PASS});
+            rconClient.on('output', (message) => {
+                console.log(message);
+                msg.channel.send(`Server Response:\`\`\`\n${message} \`\`\``);
+                rconClient.close();
+            });
             rconClient.connect()
             .then(()=>{
                 var mcCommand = `${argsMatch[1]} ${argsMatch[2]}`;
                 rconClient.run(mcCommand);
             })
             .catch((error)=>{
-                RCON_CHAN.send(`CONNECTION ERROR: ${error}`);
+                msg.channel.send(`CONNECTION ERROR: ${error}`);
             });
         }
         else {
-            msg.channel.send("Command usage: `rcon REMOTE_COMMAND [REMOTE_ARGS...]`");
+            msg.channel.send("Command usage: `minecraft rcon <remote command> [<remote args>...]`");
         }
     }
     else {
