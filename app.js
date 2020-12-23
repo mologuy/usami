@@ -99,6 +99,11 @@ function minecraftStatusComm(msg) {
                 inline: true
             },
             {
+                name:"Status",
+                value: "Online",
+                inline: true
+            },
+            {
                 name:"Players",
                 value: `${response.onlinePlayers}/${response.maxPlayers}`,
                 inline: true
