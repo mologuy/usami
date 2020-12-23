@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js",
-    "deploy": "npm install && pm2 start app.js --name \"usami\""
+    "deploy": "npm install && pm2 start app.js --name \"usami\" -f",
+    "stop": "pm2 stop usami"
   },
   "repository": {
     "type": "git",
