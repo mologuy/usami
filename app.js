@@ -8,7 +8,8 @@ const client = new Discord.Client();
 const BOT_TOKEN = BOT_INFO.TOKEN;
 const BOT_PREFIX = BOT_INFO.PREFIX;
 const MC_ROLE = BOT_INFO.MC_MOD_ROLE_NAME;
-const MC_URL = BOT_INFO.MC_SERVER_URL;
+const MC_URL = BOT_INFO.MC_SERVER_HOSTNAME;
+const MC_PORT = BOT_INFO.MC_SERVER_PORT;
 const RCON_PASS = BOT_INFO.RCON_PASSWORD;
 
 client.on('ready', () => {
