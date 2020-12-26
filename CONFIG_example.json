@@ -1,1 +1,1 @@
-{"TOKEN": "qwertyuiopasdfghjklzxcvbnm1234567890", "PREFIX": "^", "MC_SERVER_URL": "my.mc-server.com", "RCON_PASSWORD": "rconp@assw0rd", "MC_MOD_ROLE_NAME": "Minecraft OP"}
+{"TOKEN": "qwertyuiopasdfghjklzxcvbnm1234567890", "PREFIX": "^", "MC_SERVER_URL": "mc.server.com", "RCON_PASSWORD": "rconp@assw0rd", "MC_MOD_ROLE_NAME": "Minecraft OP", "CONSOLE_ENABLED": "true", "MC_CONSOLE_CHANNEL_ID":"11111111111111", "MC_CONSOLE_PORT": 3000, "MC_CHAT_CHANNEL": "11111111111112"}
