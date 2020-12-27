@@ -11,6 +11,7 @@ const MC_ROLE = BOT_INFO.MC_MOD_ROLE_NAME;
 const MC_URL = BOT_INFO.MC_SERVER_HOSTNAME;
 const MC_PORT = BOT_INFO.MC_SERVER_PORT;
 const RCON_PASS = BOT_INFO.RCON_PASSWORD;
+const RCON_PORT = BOT_INFO.RCON_PORT;
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
@@ -102,6 +103,7 @@ function rulesComm(msg) {
 
 function minecraftComm(msg, args) {
     argsMatch = args.match(/^\s*(\b\S+\b)(.*)/);
+    //console.log(argsMatch);
     if (argsMatch) {
         if (argsMatch[1] === "join") {
             minecraftJoinComm(msg, argsMatch[2]);
@@ -113,10 +115,13 @@ function minecraftComm(msg, args) {
             minecraftStatusComm(msg);
         }
     }
+    else {
+        minecraftStatusComm(msg);
+    }
 }
 
 function minecraftStatusComm(msg) {
-    util.status(MC_URL)
+    util.status(MC_URL, {port: MC_PORT})
     .then((response) => {
         var msgEmbed = new Discord.MessageEmbed()
         .setColor('#228B22')
@@ -166,7 +171,7 @@ function minecraftStatusComm(msg) {
 function minecraftJoinComm(msg, args, silent = false){
     argsMatch = args.match(/^\s*(\b\S+\b)(.*)/);
     if (argsMatch) {
-        const rconClient = new util.RCON(MC_URL, {port: 25575, enableSRV: true, timeout: 5000, password: RCON_PASS});
+        const rconClient = new util.RCON(MC_URL, {port: RCON_PORT, enableSRV: true, timeout: 5000, password: RCON_PASS});
         rconClient.on('output', (message) => {
             if (message != "" && !silent) {
                 console.log(message);
@@ -192,7 +197,7 @@ function minecraftRconComm(msg, args, silent = false) {
     if (msg.member.roles.cache.some(role => role.name === MC_ROLE)){
         var argsMatch = args.match(/^\s*(\b\S+\b)\s*(.*)/)
         if (argsMatch) {
-            const rconClient = new util.RCON(MC_URL, {port: 25575, enableSRV: true, timeout: 5000, password: RCON_PASS});
+            const rconClient = new util.RCON(MC_URL, {port: RCON_PORT, enableSRV: true, timeout: 5000, password: RCON_PASS});
             rconClient.on('output', (message) => {
                 console.log(message);
                 if (!silent)
