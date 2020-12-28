@@ -50,7 +50,7 @@ client.on('ready', () => {
 const commRegex = RegExp(`^${BOT_PREFIX.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}(\\b\\S+\\b)(.*)`);
 
 client.on('message', msg => {
-    if (!msg.author.bot) {
+    if (!msg.author.bot && !msg.webhookID) {
         var commMatch = msg.content.match(commRegex);
         if (commMatch) {
         console.log(`Command recieved: ${commMatch[1]}`);
@@ -85,6 +85,12 @@ client.on('message', msg => {
             var tellraw_obj = [{text: "[", bold: true},{text: "Discord", bold: true, color: "light_purple"},{text: "] ", bold: true}, {text: `<${msg.author.username}> ${msg.content}`, bold: false}];
             var tellraw_msg = `tellraw @a ${JSON.stringify(tellraw_obj)}`;
             minecraftRconComm(msg, tellraw_msg, true);
+        }
+        else {
+            var dadMatch = msg.content.match(/^(i\W*m|i\s+am)\s+(.*)/i)
+            if (dadMatch) {
+                dadComm(msg,dadMatch[2]);
+            }
         }
     }
 });
@@ -220,6 +226,30 @@ function minecraftRconComm(msg, args, silent = false) {
     else {
         msg.reply(`You need the role "${MC_ROLE}" to use this command`);
     }
+}
+
+function dadComm(msg, name) {
+    msg.channel.createWebhook("Dad", {avatar: "https://static.mologuy.com/images/discord/dad_pfp.jpg"})
+    .then((webhook)=>{
+        let output;
+        if (name.match(/^\W*dad\W*$/i)){
+            output = `No you're not. You're ${msg.author.username}!`
+        }
+        else {
+            output = `Hi, ${name}! I'm Dad.`;
+        }
+        webhook.send(output)
+        .then(()=>{
+            webhook.delete();
+        })
+        .catch((error)=>{
+            console.log(`error sending message with Dad webhook: ${error}`);
+            webhook.delete();
+        })
+    })
+    .catch((error)=>{
+        console.log(`error creating webhook: ${error}`);
+    })
 }
 
 client.login(BOT_TOKEN);
