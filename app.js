@@ -12,6 +12,7 @@ const MC_URL = BOT_INFO.MC_SERVER_HOSTNAME;
 const MC_PORT = BOT_INFO.MC_SERVER_PORT;
 const RCON_PASS = BOT_INFO.RCON_PASSWORD;
 const RCON_PORT = BOT_INFO.RCON_PORT;
+const CHAT_ENABLED = BOT_INFO.MC_CHAT_ENABLED;
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
@@ -27,13 +28,15 @@ client.on('ready', () => {
                 var match = data.match(/^[^\u001b]+/);
                 if (match) {
                     channel.send(match);
-                    chatMatch = match[0].match(/INFO\]\:\s*\<(.+)\>\s*(.+)/);
-                    if (chatMatch) {
-                        client.channels.fetch(BOT_INFO.MC_CHAT_CHANNEL)
-                        .then((chatchannel)=>{
-                            var chatmsg = `[Minecraft Server] **${chatMatch[1]}**: ${chatMatch[2]}`;
-                            chatchannel.send(chatmsg);
-                        })
+                    if (CHAT_ENABLED) {
+                        chatMatch = match[0].match(/INFO\]\:\s*\<(.+)\>\s*(.+)/);
+                        if (chatMatch) {
+                            client.channels.fetch(BOT_INFO.MC_CHAT_CHANNEL)
+                            .then((chatchannel)=>{
+                                var chatmsg = `[Minecraft Server] **${chatMatch[1]}**: ${chatMatch[2]}`;
+                                chatchannel.send(chatmsg);
+                            })
+                        }
                     }
                 }
             })
@@ -81,7 +84,7 @@ client.on('message', msg => {
         else if (msg.channel.id == BOT_INFO.MC_CONSOLE_CHANNEL_ID){
             minecraftRconComm(msg,msg.content);
         }
-        else if (msg.channel.id == BOT_INFO.MC_CHAT_CHANNEL) {
+        else if (CHAT_ENABLED && msg.channel.id == BOT_INFO.MC_CHAT_CHANNEL) {
             var tellraw_obj = [{text: "[", bold: true},{text: "Discord", bold: true, color: "light_purple"},{text: "] ", bold: true}, {text: `<${msg.author.username}> ${msg.content}`, bold: false}];
             var tellraw_msg = `tellraw @a ${JSON.stringify(tellraw_obj)}`;
             minecraftRconComm(msg, tellraw_msg, true);
