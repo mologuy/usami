@@ -232,7 +232,7 @@ function minecraftRconComm(msg, args, silent = false) {
 }
 
 function dadComm(msg, name) {
-    msg.channel.createWebhook("Dad", {avatar: "https://static.mologuy.com/images/discord/dad_pfp.jpg"})
+    msg.channel.createWebhook(`${msg.author.username}'s Dad`, {avatar: "https://static.mologuy.com/images/discord/dad_pfp.jpg"})
     .then((webhook)=>{
         let output;
         if (name.match(/^\W*dad\W*$/i)){

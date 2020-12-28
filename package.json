@@ -23,6 +23,7 @@
     "discord.js": "^12.5.1",
     "minecraft-server-util": "^3.4.2",
     "nodemon": "^2.0.6",
+    "pm2": "^4.5.1",
     "socket.io-client": "^3.0.4"
   }
 }
