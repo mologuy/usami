@@ -232,26 +232,26 @@ function minecraftRconComm(msg, args, silent = false) {
 }
 
 function dadComm(msg, name) {
-    msg.channel.createWebhook(`${msg.author.username}'s Dad`, {avatar: "https://static.mologuy.com/images/discord/dad_pfp.jpg"})
+    msg.channel.createWebhook(`${msg.author.username}'s dad`, {avatar: "https://static.mologuy.com/images/discord/dad_pfp.jpg"})
     .then((webhook)=>{
         let output;
         if (name.match(/^\W*dad\W*$/i)){
             output = `No you're not. You're ${msg.author.username}!`
         }
         else {
-            output = `Hi, ${name}! I'm Dad.`;
+            output = `Hi, ${name}! I'm dad.`;
         }
         webhook.send(output)
         .then(()=>{
             webhook.delete();
         })
         .catch((error)=>{
-            console.log(`error sending message with Dad webhook: ${error}`);
+            console.log("error sending message with Dad webhook:", error);
             webhook.delete();
         })
     })
     .catch((error)=>{
-        console.log(`error creating webhook: ${error}`);
+        console.log("error creating webhook:", error);
     })
 }
 
