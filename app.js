@@ -1,5 +1,4 @@
 const Discord = require("discord.js");
-const { chat } = require("googleapis/build/src/apis/chat");
 const util = require('minecraft-server-util');
 
 const BOT_INFO = require("./CONFIG.json");
