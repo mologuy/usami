@@ -105,3 +105,4 @@ dist
 
 # BOT_INFO (token)
 CONFIG.json
+PROD_CONFIG.json

@@ -1,24 +1,61 @@
 const Discord = require("discord.js");
+const { chat } = require("googleapis/build/src/apis/chat");
 const util = require('minecraft-server-util');
+
 const BOT_INFO = require("./CONFIG.json");
 
 const client = new Discord.Client();
 const BOT_TOKEN = BOT_INFO.TOKEN;
 const BOT_PREFIX = BOT_INFO.PREFIX;
 const MC_ROLE = BOT_INFO.MC_MOD_ROLE_NAME;
-const MC_URL = BOT_INFO.MC_SERVER_URL;
+const MC_URL = BOT_INFO.MC_SERVER_HOSTNAME;
+const MC_PORT = BOT_INFO.MC_SERVER_PORT;
 const RCON_PASS = BOT_INFO.RCON_PASSWORD;
+const RCON_PORT = BOT_INFO.RCON_PORT;
+const CHAT_ENABLED = BOT_INFO.MC_CHAT_ENABLED;
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
     client.user.setActivity(`Commands: ${BOT_PREFIX}help`);
+    if (BOT_INFO.CONSOLE_ENABLED) {
+        const consoleUrl = new URL("http://localhost");
+        consoleUrl.hostname = MC_URL;
+        consoleUrl.port = BOT_INFO.MC_CONSOLE_PORT;
+        const socket = require("socket.io-client")(consoleUrl.toString());
+        client.channels.fetch(BOT_INFO.MC_CONSOLE_CHANNEL_ID)
+        .then((channel)=>{
+            socket.on("console",(data)=>{
+                var match = data.match(/^[^\u001b]+/);
+                if (match) {
+                    channel.send(match);
+                    if (CHAT_ENABLED) {
+                        chatMatch = match[0].match(/INFO\]\:\s*\<(.+)\>\s*(.+)/);
+                        if (chatMatch) {
+                            client.channels.fetch(BOT_INFO.MC_CHAT_CHANNEL)
+                            .then((chatchannel)=>{
+                                var chatmsg = `[Minecraft Server] **${chatMatch[1]}**: ${chatMatch[2]}`;
+                                chatchannel.send(chatmsg);
+                            })
+                        }
+                    }
+                }
+            })
+        })
+        .catch((error)=>{
+            console.log("error finding channel",error);
+        })
+        socket.on("connect", ()=>{
+            console.log(`Connected to the socket on ${consoleUrl}`);
+        })
+    }
 });
 
 const commRegex = RegExp(`^${BOT_PREFIX.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}(\\b\\S+\\b)(.*)`);
 
 client.on('message', msg => {
-    var commMatch = msg.content.match(commRegex);
-    if (commMatch && !msg.author.bot) {
+    if (!msg.author.bot && !msg.webhookID) {
+        var commMatch = msg.content.match(commRegex);
+        if (commMatch) {
         console.log(`Command recieved: ${commMatch[1]}`);
         switch (commMatch[1]) {
             case "ping":
@@ -43,6 +80,21 @@ client.on('message', msg => {
                 msg.channel.send(`Command not found: \`${commMatch[1]}\``);
                 break;
         }
+        }
+        else if (msg.channel.id == BOT_INFO.MC_CONSOLE_CHANNEL_ID){
+            minecraftRconComm(msg,msg.content);
+        }
+        else if (CHAT_ENABLED && msg.channel.id == BOT_INFO.MC_CHAT_CHANNEL) {
+            var tellraw_obj = [{text: "[", bold: true},{text: "Discord", bold: true, color: "light_purple"},{text: "] ", bold: true}, {text: `<${msg.author.username}> ${msg.content}`, bold: false}];
+            var tellraw_msg = `tellraw @a ${JSON.stringify(tellraw_obj)}`;
+            minecraftRconComm(msg, tellraw_msg, true);
+        }
+        else {
+            var dadMatch = msg.content.match(/^(i\W*m|i\s+am)\s+(.*)/i)
+            if (dadMatch) {
+                dadComm(msg,dadMatch[2]);
+            }
+        }
     }
 });
 
@@ -60,6 +112,7 @@ function rulesComm(msg) {
 
 function minecraftComm(msg, args) {
     argsMatch = args.match(/^\s*(\b\S+\b)(.*)/);
+    //console.log(argsMatch);
     if (argsMatch) {
         if (argsMatch[1] === "join") {
             minecraftJoinComm(msg, argsMatch[2]);
@@ -71,10 +124,13 @@ function minecraftComm(msg, args) {
             minecraftStatusComm(msg);
         }
     }
+    else {
+        minecraftStatusComm(msg);
+    }
 }
 
 function minecraftStatusComm(msg) {
-    util.status(MC_URL)
+    util.status(MC_URL, {port: MC_PORT})
     .then((response) => {
         var msgEmbed = new Discord.MessageEmbed()
         .setColor('#228B22')
@@ -99,6 +155,11 @@ function minecraftStatusComm(msg) {
                 inline: true
             },
             {
+                name:"Status",
+                value: "Online",
+                inline: true
+            },
+            {
                 name:"Players",
                 value: `${response.onlinePlayers}/${response.maxPlayers}`,
                 inline: true
@@ -116,12 +177,12 @@ function minecraftStatusComm(msg) {
     });
 }
 
-function minecraftJoinComm(msg, args){
+function minecraftJoinComm(msg, args, silent = false){
     argsMatch = args.match(/^\s*(\b\S+\b)(.*)/);
     if (argsMatch) {
-        const rconClient = new util.RCON(MC_URL, {port: 25575, enableSRV: true, timeout: 5000, password: RCON_PASS});
+        const rconClient = new util.RCON(MC_URL, {port: RCON_PORT, enableSRV: true, timeout: 5000, password: RCON_PASS});
         rconClient.on('output', (message) => {
-            if (message != "") {
+            if (message != "" && !silent) {
                 console.log(message);
                 msg.channel.send(message);
             }
@@ -141,14 +202,15 @@ function minecraftJoinComm(msg, args){
     }
 }
 
-function minecraftRconComm(msg, args) {
+function minecraftRconComm(msg, args, silent = false) {
     if (msg.member.roles.cache.some(role => role.name === MC_ROLE)){
         var argsMatch = args.match(/^\s*(\b\S+\b)\s*(.*)/)
         if (argsMatch) {
-            const rconClient = new util.RCON(MC_URL, {port: 25575, enableSRV: true, timeout: 5000, password: RCON_PASS});
+            const rconClient = new util.RCON(MC_URL, {port: RCON_PORT, enableSRV: true, timeout: 5000, password: RCON_PASS});
             rconClient.on('output', (message) => {
                 console.log(message);
-                msg.channel.send(`Server Response:\`\`\`\n${message} \`\`\``);
+                if (!silent)
+                    msg.channel.send(`Server Response:\`\`\`\n${message} \`\`\``);
                 rconClient.close();
             });
             rconClient.connect()
@@ -167,6 +229,30 @@ function minecraftRconComm(msg, args) {
     else {
         msg.reply(`You need the role "${MC_ROLE}" to use this command`);
     }
+}
+
+function dadComm(msg, name) {
+    msg.channel.createWebhook(`${msg.author.username}'s dad`, {avatar: "https://static.mologuy.com/images/discord/dad_pfp.jpg"})
+    .then((webhook)=>{
+        let output;
+        if (name.match(/^\W*dad\W*$/i)){
+            output = `No you're not. You're ${msg.author.username}!`
+        }
+        else {
+            output = `Hi, ${name}! I'm dad.`;
+        }
+        webhook.send(output)
+        .then(()=>{
+            webhook.delete();
+        })
+        .catch((error)=>{
+            console.log("error sending message with Dad webhook:", error);
+            webhook.delete();
+        })
+    })
+    .catch((error)=>{
+        console.log("error creating webhook:", error);
+    })
 }
 
 client.login(BOT_TOKEN);
