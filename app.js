@@ -23,6 +23,12 @@ client.on('ready', () => {
         const socket = require("socket.io-client")(consoleUrl.toString());
         client.channels.fetch(BOT_INFO.MC_CONSOLE_CHANNEL_ID)
         .then((channel)=>{
+            socket.on("connect", ()=> {
+                channel.send("Socket connected");
+            });
+            socket.on("disconnect", ()=> {
+                channel.send("Socket disconnected");
+            });
             socket.on("console",(data)=>{
                 var match = data.match(/^[^\u001b]+/);
                 if (match) {
