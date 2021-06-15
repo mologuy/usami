@@ -274,8 +274,9 @@ async function sixNineComm(msg) {
 
 async function spoilerComm(msg) {
     var fileURL = msg.attachments.first().url;
+    var fileName = msg.attachments.first().name;
     await msg.delete();
-    msg.channel.send({files:[{attachment: fileURL, name: "SPOILER_IMAGE.png", spoiler: true}]});
+    msg.channel.send({files:[{attachment: fileURL, name: "SPOILER_" + fileName}]});
 }
 
 client.login(BOT_TOKEN);
