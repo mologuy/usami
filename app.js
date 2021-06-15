@@ -61,30 +61,30 @@ client.on('message', msg => {
     if (!msg.author.bot && !msg.webhookID) {
         var commMatch = msg.content.match(commRegex);
         if (commMatch) {
-        console.log(`Command recieved: ${commMatch[1]}`);
-        switch (commMatch[1]) {
-            case "ping":
-                pingComm(msg);
-                break;
-            case "help":
-                helpComm(msg, commMatch[2]);
-                break;
-            case "rules":
-                rulesComm(msg);
-                break;
-            case "minecraft":
-                minecraftComm(msg, commMatch[2]);
-                break;
-            case "whitelist":
-                minecraftJoinComm(msg, commMatch[2]);
-                break;
-            case "rcon":
-                minecraftRconComm(msg, commMatch[2]);
-                break;
-            default:
-                msg.channel.send(`Command not found: \`${commMatch[1]}\``);
-                break;
-        }
+            console.log(`Command recieved: ${commMatch[1]}`);
+            switch (commMatch[1]) {
+                case "ping":
+                    pingComm(msg);
+                    break;
+                case "help":
+                    helpComm(msg, commMatch[2]);
+                    break;
+                case "rules":
+                    rulesComm(msg);
+                    break;
+                case "minecraft":
+                    minecraftComm(msg, commMatch[2]);
+                    break;
+                case "whitelist":
+                    minecraftJoinComm(msg, commMatch[2]);
+                    break;
+                case "rcon":
+                    minecraftRconComm(msg, commMatch[2]);
+                    break;
+                default:
+                    msg.channel.send(`Command not found: \`${commMatch[1]}\``);
+                    break;
+            }
         }
         else if (msg.channel.id == BOT_INFO.MC_CONSOLE_CHANNEL_ID){
             minecraftRconComm(msg,msg.content);
@@ -95,9 +95,13 @@ client.on('message', msg => {
             minecraftRconComm(msg, tellraw_msg, true);
         }
         else {
-            var dadMatch = msg.content.match(/^(i\W*m|i\s+am)\s+(.*)/i)
+            var dadMatch = msg.content.match(/^(i\W*m|i\s+am)\s+(.*)/i);
+            var sixNinematch = msg.content.match(/.*69.*/i);
             if (dadMatch) {
                 dadComm(msg,dadMatch[2]);
+            }
+            if (sixNinematch) {
+                sixNineComm(msg);
             }
         }
     }
@@ -258,6 +262,10 @@ function dadComm(msg, name) {
     .catch((error)=>{
         console.log("error creating webhook:", error);
     })
+}
+
+async function sixNineComm(msg) {
+    msg.channel.send("Nice");
 }
 
 client.login(BOT_TOKEN);
