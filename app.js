@@ -96,12 +96,16 @@ client.on('message', msg => {
         }
         else {
             var dadMatch = msg.content.match(/^(i\W*m|i\s+am)\s+(.*)/i);
-            var sixNinematch = msg.content.match(/.*69.*/i);
+            var sixNineMatch = msg.content.match(/.*69.*/i);
+            var spoilerMatch = msg.content.match(/.*spoiler.*/i);
             if (dadMatch) {
                 dadComm(msg,dadMatch[2]);
             }
-            if (sixNinematch) {
+            if (sixNineMatch) {
                 sixNineComm(msg);
+            }
+            if (spoilerMatch && msg.attachments.size == 1) {
+                spoilerComm(msg);
             }
         }
     }
@@ -266,6 +270,12 @@ function dadComm(msg, name) {
 
 async function sixNineComm(msg) {
     msg.channel.send("Nice");
+}
+
+async function spoilerComm(msg) {
+    var fileURL = msg.attachments.first().url;
+    await msg.delete();
+    msg.channel.send({files:[{attachment: fileURL, name: "SPOILER_IMAGE.png", spoiler: true}]});
 }
 
 client.login(BOT_TOKEN);
