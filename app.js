@@ -4,6 +4,8 @@ const util = require('minecraft-server-util');
 const help = require("./commands/help.js");
 const rules = require("./commands/rules.js");
 const minecraft = require("./commands/minecraft.js");
+const dad = require("./commands/dad.js");
+const spoiler = require("./commands/spoiler.js");
 
 const BOT_INFO = require("./CONFIG.json");
 
@@ -73,7 +75,7 @@ client.on('message', async (msg) => {
                 console.log(`Command recieved: ${commMatch[1]}`);
                 switch (commMatch[1]) {
                     case "ping":
-                        pingComm(msg);
+                        await pingComm(msg);
                         break;
                     case "help":
                         await help.command(msg, commMatch[2]);
@@ -101,13 +103,13 @@ client.on('message', async (msg) => {
                 var sixNineMatch = msg.content.match(/.*69.*/i);
                 var spoilerMatch = msg.content.match(/.*spoiler.*/i);
                 if (dadMatch) {
-                    dadComm(msg,dadMatch[2]);
+                    await dad.command(msg,dadMatch[2]);
                 }
                 if (sixNineMatch) {
-                    sixNineComm(msg);
+                    await sixNineComm(msg);
                 }
                 if (spoilerMatch && msg.attachments.size == 1) {
-                    spoilerComm(msg);
+                    await spoiler.command(msg);
                 }
             }
         }
@@ -117,36 +119,12 @@ client.on('message', async (msg) => {
     }
 });
 
-function pingComm(msg) {
-    msg.channel.send("pong");
-}
-
-function dadComm(msg, name) {
-    msg.channel.createWebhook(`${msg.author.username}'s dad`, {avatar: "https://static.mologuy.com/images/discord/dad_pfp.jpg"})
-    .then((webhook)=>{
-        let output;
-        if (name.match(/^\W*dad\W*$/i)){
-            output = `No you're not. You're ${msg.author.username}!`
-        }
-        else {
-            output = `Hi, ${name}! I'm dad.`;
-        }
-        webhook.send(output)
-        .then(()=>{
-            webhook.delete();
-        })
-        .catch((error)=>{
-            console.log("error sending message with Dad webhook:", error);
-            webhook.delete();
-        })
-    })
-    .catch((error)=>{
-        console.log("error creating webhook:", error);
-    })
+async function pingComm(msg) {
+    await msg.channel.send("pong");
 }
 
 async function sixNineComm(msg) {
-    msg.channel.send("Nice");
+    await msg.channel.send("Nice");
 }
 
 async function spoilerComm(msg) {
