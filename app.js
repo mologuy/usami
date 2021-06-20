@@ -1,5 +1,4 @@
 const Discord = require("discord.js");
-const util = require('minecraft-server-util');
 
 const help = require("./commands/help.js");
 const rules = require("./commands/rules.js");
@@ -134,4 +133,4 @@ async function spoilerComm(msg) {
     msg.channel.send({files:[{attachment: fileURL, name: "SPOILER_" + fileName}]});
 }
 
-client.login(BOT_TOKEN);
+client.login(BOT_INFO.TOKEN);
