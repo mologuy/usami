@@ -5,54 +5,21 @@ const rules = require("./commands/rules.js");
 const minecraft = require("./commands/minecraft.js");
 const dad = require("./commands/dad.js");
 const spoiler = require("./commands/spoiler.js");
+const mcConsole = require("./mc-console");
 
 const BOT_INFO = require("./CONFIG.json");
 
 const client = new Discord.Client();
-const BOT_TOKEN = BOT_INFO.TOKEN;
 const BOT_PREFIX = BOT_INFO.PREFIX;
-const MC_URL = BOT_INFO.MC_SERVER_HOSTNAME;
-const CHAT_ENABLED = BOT_INFO.MC_CHAT_ENABLED;
 
-client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}`);
-    client.user.setActivity(`Commands: ${BOT_PREFIX}help`);
-    if (BOT_INFO.CONSOLE_ENABLED) {
-        const consoleUrl = new URL("http://localhost");
-        consoleUrl.hostname = MC_URL;
-        consoleUrl.port = BOT_INFO.MC_CONSOLE_PORT;
-        const socket = require("socket.io-client")(consoleUrl.toString());
-        client.channels.fetch(BOT_INFO.MC_CONSOLE_CHANNEL_ID)
-        .then((channel)=>{
-            socket.on("connect", ()=> {
-                channel.send("Socket connected");
-            });
-            socket.on("disconnect", ()=> {
-                channel.send("Socket disconnected");
-            });
-            socket.on("console",(data)=>{
-                var match = data.match(/^[^\u001b]+/);
-                if (match) {
-                    channel.send(match);
-                    if (CHAT_ENABLED) {
-                        chatMatch = match[0].match(/INFO\]\:\s*\<(.+)\>\s*(.+)/);
-                        if (chatMatch) {
-                            client.channels.fetch(BOT_INFO.MC_CHAT_CHANNEL)
-                            .then((chatchannel)=>{
-                                var chatmsg = `[Minecraft Server] **${chatMatch[1]}**: ${chatMatch[2]}`;
-                                chatchannel.send(chatmsg);
-                            })
-                        }
-                    }
-                }
-            })
-        })
-        .catch((error)=>{
-            console.log("error finding channel",error);
-        })
-        socket.on("connect", ()=>{
-            console.log(`Connected to the socket on ${consoleUrl}`);
-        })
+client.on('ready', async () => {
+    try {
+        console.log(`Logged in as ${client.user.tag}`);
+        await client.user.setActivity(`Commands: ${BOT_PREFIX}help`);
+        await mcConsole(client);
+    }
+    catch (e) {
+        console.log(e);
     }
 });
 
@@ -62,10 +29,10 @@ client.on('message', async (msg) => {
     if (!msg.author.bot && !msg.webhookID) {
         try {
             var commMatch = msg.content.match(commRegex);
-            if (msg.channel.id == BOT_INFO.MC_CONSOLE_CHANNEL_ID){
+            if (BOT_INFO.CONSOLE_ENABLED && msg.channel.id == BOT_INFO.MC_CONSOLE_CHANNEL_ID){
                 await minecraft.rcon.command(msg,msg.content);
             }
-            else if (CHAT_ENABLED && msg.channel.id == BOT_INFO.MC_CHAT_CHANNEL) {
+            else if (BOT_INFO.MC_CHAT_ENABLED && msg.channel.id == BOT_INFO.MC_CHAT_CHANNEL) {
                 var tellraw_obj = [{text: "[", bold: true},{text: "Discord", bold: true, color: "light_purple"},{text: "] ", bold: true}, {text: `<${msg.author.username}> ${msg.content}`, bold: false}];
                 var tellraw_msg = `tellraw @a ${JSON.stringify(tellraw_obj)}`;
                 await minecraft.rcon.command(msg, tellraw_msg, true);
