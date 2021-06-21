@@ -10,20 +10,20 @@ const mcConsole = require("./mc-console");
 const BOT_INFO = require("./CONFIG.json");
 
 const client = new Discord.Client();
-const BOT_PREFIX = BOT_INFO.PREFIX;
+const botPrefix = BOT_INFO.PREFIX;
+const escapedPrefix = botPrefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+const commRegex = RegExp(`^${escapedPrefix}(\\b\\S+\\b)(.*)`);
 
 client.on('ready', async () => {
     try {
         console.log(`Logged in as ${client.user.tag}`);
-        await client.user.setActivity(`Commands: ${BOT_PREFIX}help`);
+        await client.user.setActivity(`Commands: ${botPrefix}help`);
         await mcConsole(client);
     }
     catch (e) {
         console.log(e);
     }
 });
-
-const commRegex = RegExp(`^${BOT_PREFIX.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}(\\b\\S+\\b)(.*)`);
 
 client.on('message', async (msg) => {
     if (!msg.author.bot && !msg.webhookID) {
@@ -66,8 +66,8 @@ client.on('message', async (msg) => {
             }
             else {
                 var dadMatch = msg.content.match(/^(i\W*m|i\s+am)\s+(.*)/i);
-                var sixNineMatch = msg.content.match(/.*69.*/i);
-                var spoilerMatch = msg.content.match(/.*spoiler.*/i);
+                var sixNineMatch = msg.content.match(/69/i);
+                var spoilerMatch = msg.content.match(/spoiler/i);
                 if (dadMatch) {
                     await dad.command(msg,dadMatch[2]);
                 }
@@ -91,13 +91,6 @@ async function pingComm(msg) {
 
 async function sixNineComm(msg) {
     await msg.channel.send("Nice");
-}
-
-async function spoilerComm(msg) {
-    var fileURL = msg.attachments.first().url;
-    var fileName = msg.attachments.first().name;
-    await msg.delete();
-    msg.channel.send({files:[{attachment: fileURL, name: "SPOILER_" + fileName}]});
 }
 
 client.login(BOT_INFO.TOKEN);

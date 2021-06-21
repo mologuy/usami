@@ -11,50 +11,27 @@ async function main(client) {
         const console_channel = await client.channels.fetch(BOT_INFO.MC_CONSOLE_CHANNEL_ID);
 
         await socket.on("connect", async ()=> {
-            try {
-                await console_channel.send("Socket connected");
-            }
-            catch (e) {
-                throw e;
-            }
+            await console_channel.send("Socket connected");
         });
     
         await socket.on("disconnect", async ()=> {
-            try {
-                await console_channel.send("Socket disconnected");
-            }
-            catch (e) {
-                throw e;
-            }
+            await console_channel.send("Socket disconnected");
+
         });
     
         await socket.on("console", async (content)=>{
-            try {
-                await console_channel.send(content);
-            }
-            catch (e) {
-                throw e;
-            }
+            await console_channel.send(content);
         });
     }
 
     if (BOT_INFO.MC_CHAT_ENABLED) {
-        const chat_channel = await client.channels.fetch(BOT_INFO.MC_CONSOLE_CHANNEL_ID);
+        const chat_channel = await client.channels.fetch(BOT_INFO.MC_CHAT_CHANNEL);
 
         await socket.on("console", async (data)=>{
-            try {
-                chatMatch = data.match(/INFO\]\:\s*\<(.+)\>\s*(.+)/i);
-                if (chatMatch) {
-                    const chatmsg = `[Minecraft Server] **${chatMatch[1]}**: ${chatMatch[2]}`;
-                    console.log("sending chat:", chatmsg);
-                    await chat_channel.send(chatmsg);
-                }
-                else {
-                    console.log("data didn't match chat message:", data);
-                }
-            }
-            catch (e) {
-                throw e;
+            chatMatch = data.match(/INFO\]\:\s*\<(.+)\>\s*(.+)/i);
+            if (chatMatch) {
+                const chatmsg = `[Minecraft Server] **${chatMatch[1]}**: ${chatMatch[2]}`;
+                await chat_channel.send(chatmsg);
             }
         });
     }
