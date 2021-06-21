@@ -33,7 +33,7 @@ client.on('message', async (msg) => {
                 await minecraft.rcon.command(msg,msg.content);
             }
             else if (BOT_INFO.MC_CHAT_ENABLED && msg.channel.id == BOT_INFO.MC_CHAT_CHANNEL) {
-                var tellraw_obj = [{text: "[", bold: true},{text: "Discord", bold: true, color: "light_purple"},{text: "] ", bold: true}, {text: `<${msg.author.username}> ${msg.content}`, bold: false}];
+                var tellraw_obj = [{text: "[", bold: true},{text: "Discord", bold: true, color: "light_purple"},{text: "] ", bold: true, color: "reset"}, {text: `<${msg.author.username}> ${msg.content}`, bold: false}];
                 var tellraw_msg = `tellraw @a ${JSON.stringify(tellraw_obj)}`;
                 await minecraft.rcon.command(msg, tellraw_msg, true);
             }
