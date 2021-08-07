@@ -5,7 +5,7 @@ const rules = require("./commands/rules.js");
 const minecraft = require("./commands/minecraft.js");
 const dad = require("./commands/dad.js");
 const spoiler = require("./commands/spoiler.js");
-const mcConsole = require("./mc-console");
+//const mcConsole = require("./mc-console");
 
 const BOT_INFO = require("./CONFIG.json");
 
@@ -18,7 +18,7 @@ client.on('ready', async () => {
     try {
         console.log(`Logged in as ${client.user.tag}`);
         await client.user.setActivity(`Commands: ${botPrefix}help`);
-        await mcConsole(client);
+        //await mcConsole(client);
     }
     catch (e) {
         console.log(e);

@@ -4,28 +4,39 @@ const consoleUrl = new URL("http://localhost");
 consoleUrl.hostname = BOT_INFO.MC_SERVER_HOSTNAME;
 consoleUrl.port = BOT_INFO.MC_CONSOLE_PORT;
 
-const socket = require("socket.io-client")(consoleUrl.toString());
+const io = require("socket.io-client");
 
-async function main(client) {
+async function init(client) {
+    var output;
+    output.client = client;
+    output.socket = io(consoleUrl.toString());
+
+    output.start = startSocket;
+    output.stop = async function() {}
+    
+    return output;
+}
+
+async function startSocket() {
     if (BOT_INFO.CONSOLE_ENABLED) {
-        const console_channel = await client.channels.fetch(BOT_INFO.MC_CONSOLE_CHANNEL_ID);
+        const console_channel = await this.client.channels.fetch(BOT_INFO.MC_CONSOLE_CHANNEL_ID);
 
-        await socket.on("connect", async ()=> {
+        await this.socket.on("connect", async ()=> {
             await console_channel.send("Socket connected");
         });
     
-        await socket.on("disconnect", async ()=> {
+        await this.socket.on("disconnect", async ()=> {
             await console_channel.send("Socket disconnected");
 
         });
     
-        await socket.on("console", async (content)=>{
+        await this.socket.on("console", async (content)=>{
             await console_channel.send(content);
         });
     }
 
     if (BOT_INFO.MC_CHAT_ENABLED) {
-        const chat_channel = await client.channels.fetch(BOT_INFO.MC_CHAT_CHANNEL);
+        const chat_channel = await this.client.channels.fetch(BOT_INFO.MC_CHAT_CHANNEL);
 
         await socket.on("console", async (data)=>{
             chatMatch = data.match(/INFO\]\:\s*\<(.+)\>\s*(.+)/i);
@@ -37,4 +48,8 @@ async function main(client) {
     }
 }
 
-module.exports = main;
+async function stopSocket() {
+    this.socket.close();
+}
+
+module.exports = init;
